@@ -100,7 +100,7 @@ export interface FlashcardProposalDto {
  */
 export interface CreateGenerationSessionResponseDto {
   generation_session: Pick<GenerationSessionDto, "id" | "model" | "created_at">;
-  flashcardsProposals: FlashcardProposalDto[];
+  flashcards_proposals: FlashcardProposalDto[];
 }
 
 /**

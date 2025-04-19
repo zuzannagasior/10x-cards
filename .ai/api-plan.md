@@ -218,7 +218,7 @@
       "source_text_length": 1500,
       "created_at": "timestamp"
     },
-    "flashcardsProposals": [
+    "flashcards_proposals": [
       {
         "id": 1,
         "front": "Generated question text",
