@@ -115,3 +115,8 @@ export type GenerationSessionErrorLogDto = GenerationSessionErrorLog;
 export interface ListGenerationSessionErrorLogsResponseDto {
   errors: GenerationSessionErrorLogDto[];
 }
+
+export interface FlashcardViewModel extends FlashcardProposalDto {
+  accepted: boolean;
+  edited: boolean;
+}
