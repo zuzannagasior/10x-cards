@@ -39,7 +39,9 @@ export async function POST({ request }: { request: Request }): Promise<Response>
     }
 
     const { text } = parseResult.data;
-    const generationService = new GenerationService();
+    const generationService = new GenerationService({
+      apiKey: import.meta.env.OPENROUTER_API_KEY,
+    });
     const result = await generationService.generateFlashcards(text);
 
     return new Response(JSON.stringify(result), {

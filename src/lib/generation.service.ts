@@ -2,8 +2,58 @@ import type { CreateGenerationSessionResponseDto, FlashcardProposalDto } from ".
 import crypto from "crypto";
 
 import { DEFAULT_USER_ID, supabaseClient } from "../db/supabase.client";
+import { OpenRouterService } from "./openrouter.service";
 
+import type { ResponseFormatSchema } from "./openrouter.types";
 export class GenerationService {
+  private openRouterService: OpenRouterService;
+
+  constructor(openRouterConfig: { apiKey?: string }) {
+    if (!openRouterConfig.apiKey) {
+      throw new Error("OpenRouter API key is required");
+    }
+
+    this.openRouterService = new OpenRouterService({
+      apiKey: openRouterConfig.apiKey,
+      defaultModel: "gpt-4o-mini",
+      defaultParams: {
+        temperature: 0.7,
+        max_tokens: 2048,
+      },
+    });
+
+    // Configure system message for flashcard generation
+    this.openRouterService.setSystemMessage(
+      "You are a flashcard generation assistant. Your task is to create high-quality flashcards from the provided text. " +
+        "Each flashcard should have a clear question on the front and a concise answer on the back. " +
+        "The front should be max 200 characters and the back max 500 characters. " +
+        "Focus on key concepts, definitions, and relationships in the text."
+    );
+
+    // Configure response format for structured output
+    const responseFormat: ResponseFormatSchema = {
+      name: "flashcards",
+      schema: {
+        type: "object",
+        properties: {
+          flashcards: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                front: { type: "string" },
+                back: { type: "string" },
+              },
+              required: ["front", "back"],
+            },
+          },
+        },
+        required: ["flashcards"],
+      },
+    };
+    this.openRouterService.setResponseFormat(responseFormat);
+  }
+
   async generateFlashcards(text: string): Promise<CreateGenerationSessionResponseDto> {
     try {
       const sourceTextHash = this.calculateTextHash(text);
@@ -31,13 +81,22 @@ export class GenerationService {
   }
 
   private async callAIService(text: string): Promise<FlashcardProposalDto[]> {
-    // Mock implementation - in real version this would call the AI service
-    const numCards = Math.min(Math.floor(text.length / 1000), 5);
+    try {
+      const response = await this.openRouterService.sendChat(text);
+      const result = JSON.parse(response.message);
 
-    return Array.from({ length: numCards }, (_, i) => ({
-      front: `Sample question ${i + 1} from text of length ${text.length}`,
-      back: `Sample answer ${i + 1}`,
-    }));
+      if (!result.flashcards || !Array.isArray(result.flashcards)) {
+        throw new Error("Invalid response format from AI service");
+      }
+
+      return result.flashcards.map((card: { front: string; back: string }) => ({
+        front: card.front,
+        back: card.back,
+      }));
+    } catch (error) {
+      console.error("Error generating flashcards:", error);
+      throw new Error("Failed to generate flashcards using AI service");
+    }
   }
 
   private async saveGenerationSession(sourceTextHash: string, generatedCount: number) {
@@ -46,7 +105,7 @@ export class GenerationService {
       .insert({
         user_id: DEFAULT_USER_ID,
         source_text_hash: sourceTextHash,
-        model: "gpt-4",
+        model: this.openRouterService.getModel().model,
         generated_count: generatedCount,
       })
       .select()
