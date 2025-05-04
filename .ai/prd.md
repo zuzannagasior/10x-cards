@@ -92,10 +92,16 @@ Opis: Jako użytkownik chcę mieć możliwość rejestracji, logowania, edycji h
 Kryteria akceptacji:
 
 - System umożliwia rejestrację nowego użytkownika.
+- Rejestracja wymaha podania adresu email, hasła i potwierdzenia hasła.
 - System umożliwia logowanie istniejącego użytkownika.
+- Użytkownik może się logować na dedykowanej do tego stronie. Niezalogowany uzytkownik powinien być automatycznie przekierowany na ekran logowania.
 - Użytkownik może zmieniać swoje hasło.
+- Użytkownik może odzyskać swoje hasło.
 - Użytkownik może usunąć swoje konto.
 - Dostęp do funkcji konta jest zabezpieczony autoryzacją.
+- Dostęp do funkcji aplikacji, takich jak generowanie fiszek, lista fiszek jest zabezpieczony autoryzacją.
+- Użytkownik może się wylogować z systemu poprzez kliknięcie w przycisk w prawym górnym rogu oraz z profilu uzytkownika.
+- Nie korzystamy z zewnętrznych serwisów logownia (np. Google, GitHub)
 
 US-008
 Tytuł: Podstawowa obsługa błędów
