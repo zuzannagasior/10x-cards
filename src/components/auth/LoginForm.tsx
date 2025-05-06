@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { toast } from 'sonner';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { getErrorMessage } from "@/lib/api-error";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { getErrorMessage } from '@/lib/api-error';
 
 import type { ChangeEvent, FormEvent } from "react";
 
@@ -40,8 +40,25 @@ export function LoginForm() {
 
     setIsLoading(true);
     try {
-      // Auth logic will be implemented later
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: "include", // Important for cookies
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to login");
+      }
+
       toast.success("Login successful");
+
+      // Use window.location.assign for more reliable navigation
+      // Astro.redirect(data.redirectTo || "/generate");
     } catch (error: unknown) {
       toast.error(getErrorMessage(error));
     } finally {
