@@ -1,0 +1,7 @@
+# environment variables
+.env
+.env.production
+.env.example
+
+# node_modules
+node_modules
