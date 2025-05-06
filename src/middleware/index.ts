@@ -14,26 +14,43 @@ const PUBLIC_PATHS = [
   "/api/auth/forgot-password",
 ];
 
-export const onRequest = defineMiddleware(async ({ cookies, url, redirect, locals }, next) => {
+export const onRequest = defineMiddleware(async ({ cookies, url, request, redirect, locals }, next) => {
+  // Create Headers object with cookie from request
+  const headers = new Headers(request.headers);
+
+  // Create Supabase instance with proper cookie handling
   const supabase = createSupabaseServerInstance({
     cookies,
-    headers: new Headers({ cookie: cookies.toString() }),
+    headers,
   });
-
-  // Get user session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   // Set supabase instance in locals for use in API routes
   locals.supabase = supabase;
 
-  if (user) {
+  // Get user data with secure verification on Supabase Auth server
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    console.error("Error getting user:", error.message);
+  }
+
+  // If user is authenticated, set user data in locals
+  if (data.user) {
     locals.user = {
-      id: user.id,
-      email: user.email,
+      id: data.user.id,
+      email: data.user.email || null,
     };
-  } else if (!PUBLIC_PATHS.includes(url.pathname)) {
+
+    // If authenticated user tries to access public paths, redirect to /generate
+    if (PUBLIC_PATHS.includes(url.pathname)) {
+      return redirect("/generate");
+    }
+
+    return next();
+  }
+
+  // If path requires authentication and user is not authenticated, redirect to login
+  if (!PUBLIC_PATHS.includes(url.pathname)) {
     return redirect("/login");
   }
 

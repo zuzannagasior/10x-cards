@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { z } from 'zod';
+import { z } from "zod";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -10,8 +10,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
     const { email, password } = loginSchema.parse(body);
-
-    console.log("Attempting login for email:", email);
 
     const { data, error } = await locals.supabase.auth.signInWithPassword({
       email,

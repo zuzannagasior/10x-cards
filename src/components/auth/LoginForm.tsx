@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { getErrorMessage } from '@/lib/api-error';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { getErrorMessage } from "@/lib/api-error";
 
 import type { ChangeEvent, FormEvent } from "react";
 
@@ -46,22 +46,22 @@ export function LoginForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-        credentials: "include", // Important for cookies
+        credentials: "include",
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      // If the response is a redirect, the browser will handle it automatically
+      if (!response.ok && response.status !== 302) {
+        const data = await response.json();
         throw new Error(data.error || "Failed to login");
       }
 
-      toast.success("Login successful");
+      if (response.ok) {
+        const data = await response.json();
 
-      // Use window.location.assign for more reliable navigation
-      // Astro.redirect(data.redirectTo || "/generate");
+        window.location.href = data.redirectTo || "/generate";
+      }
     } catch (error: unknown) {
       toast.error(getErrorMessage(error));
-    } finally {
       setIsLoading(false);
     }
   };
