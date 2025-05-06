@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
-import { z } from 'zod';
+import { z } from "zod";
 
-import { FlashcardsService } from '../../lib/flashcards.service';
+import { FlashcardsService } from "../../lib/flashcards.service";
 
 // Define schema for manual flashcards
 const CreateFlashcardCommandSchemaManual = z.object({
@@ -28,13 +28,12 @@ const CreateFlashcardsRequestSchema = z.object({
 
 export const prerender = false;
 
-export async function POST({ request }: Parameters<APIRoute>[0]) {
+export async function POST({ request, locals }: Parameters<APIRoute>[0]) {
   try {
-    //  const { user, supabase } = locals as RequestLocals;
     // Check for authorization middleware result
-    //   if (!user) {
-    //     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-    //   }
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
 
     let payload: unknown;
     try {
@@ -50,8 +49,8 @@ export async function POST({ request }: Parameters<APIRoute>[0]) {
     }
 
     const { flashcards } = parsed.data;
-    const flashcardsService = new FlashcardsService();
-    const result = await flashcardsService.createFlashcards(flashcards);
+    const flashcardsService = new FlashcardsService(locals.supabase);
+    const result = await flashcardsService.createFlashcards(flashcards, locals.user.id);
 
     return new Response(JSON.stringify(result), { status: 201 });
   } catch (error) {
@@ -62,10 +61,7 @@ export async function POST({ request }: Parameters<APIRoute>[0]) {
         error: "Internal server error",
         details: error instanceof Error ? error.message : undefined,
       }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
+      { status: 500 }
     );
   }
 }

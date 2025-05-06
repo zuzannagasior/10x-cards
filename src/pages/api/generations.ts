@@ -1,3 +1,4 @@
+import type { APIRoute } from "astro";
 import { z } from "zod";
 
 import { GenerationService } from "../../lib/generation.service";
@@ -11,16 +12,18 @@ const requestSchema = z.object({
     .max(10000, { message: "Text is too long. Maximum 10000 characters allowed." }),
 });
 
-export async function POST({ request }: { request: Request }): Promise<Response> {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // Check for authorization middleware result
+    if (!locals.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+
     let requestData;
     try {
       requestData = await request.json();
     } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify({ error: "Invalid JSON payload" }), { status: 400 });
     }
 
     // Validate input using Zod
@@ -31,23 +34,19 @@ export async function POST({ request }: { request: Request }): Promise<Response>
           error: "Validation error",
           details: parseResult.error.errors,
         }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
+        { status: 400 }
       );
     }
 
     const { text } = parseResult.data;
     const generationService = new GenerationService({
       apiKey: import.meta.env.OPENROUTER_API_KEY,
+      userId: locals.user.id,
+      supabase: locals.supabase,
     });
     const result = await generationService.generateFlashcards(text);
 
-    return new Response(JSON.stringify(result), {
-      status: 201,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify(result), { status: 201 });
   } catch (error) {
     console.error("Generation endpoint error:", error);
 
@@ -56,10 +55,7 @@ export async function POST({ request }: { request: Request }): Promise<Response>
         error: "Internal server error",
         details: error instanceof Error ? error.message : undefined,
       }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
+      { status: 500 }
     );
   }
-}
+};

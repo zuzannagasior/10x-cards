@@ -1,7 +1,7 @@
 import type { AstroCookies } from "astro";
 import type { Database } from "./database.types";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { createServerClient } from '@supabase/ssr';
+import type { SupabaseClient } from "../db/supabase.client";
+import { createServerClient } from "@supabase/ssr";
 
 function parseCookieHeader(cookieHeader: string): { name: string; value: string }[] {
   if (!cookieHeader) return [];

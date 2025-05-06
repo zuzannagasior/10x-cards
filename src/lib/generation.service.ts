@@ -1,20 +1,27 @@
 import type { CreateGenerationSessionResponseDto, FlashcardProposalDto } from "../types";
+
+import type { Database } from "../db/database.types";
 import crypto from "crypto";
 
-import { DEFAULT_USER_ID, supabaseClient } from "../db/supabase.client";
 import { OpenRouterService } from "./openrouter.service";
 
 import type { ResponseFormatSchema } from "./openrouter.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 export class GenerationService {
   private openRouterService: OpenRouterService;
+  private userId: string;
+  private supabase: SupabaseClient<Database>;
 
-  constructor(openRouterConfig: { apiKey?: string }) {
-    if (!openRouterConfig.apiKey) {
+  constructor(config: { apiKey?: string; userId?: string; supabase: SupabaseClient<Database> }) {
+    if (!config.apiKey) {
       throw new Error("OpenRouter API key is required");
     }
 
+    this.userId = config.userId || "";
+    this.supabase = config.supabase;
+
     this.openRouterService = new OpenRouterService({
-      apiKey: openRouterConfig.apiKey,
+      apiKey: config.apiKey,
       defaultModel: "gpt-4o-mini",
       defaultParams: {
         temperature: 0.7,
@@ -55,6 +62,11 @@ export class GenerationService {
   }
 
   async generateFlashcards(text: string): Promise<CreateGenerationSessionResponseDto> {
+    // Validate user ID is provided
+    if (!this.userId) {
+      throw new Error("User ID is required for generating flashcards");
+    }
+
     try {
       const sourceTextHash = this.calculateTextHash(text);
       const flashcardsProposals = await this.callAIService(text);
@@ -100,10 +112,10 @@ export class GenerationService {
   }
 
   private async saveGenerationSession(sourceTextHash: string, generatedCount: number) {
-    const { data: session, error: sessionError } = await supabaseClient
+    const { data: session, error: sessionError } = await this.supabase
       .from("generation_sessions")
       .insert({
-        user_id: DEFAULT_USER_ID,
+        user_id: this.userId,
         source_text_hash: sourceTextHash,
         model: this.openRouterService.getModel().model,
         generated_count: generatedCount,
@@ -120,8 +132,8 @@ export class GenerationService {
 
   private async logError(message: string, errorCode: string, sourceTextHash: string): Promise<void> {
     try {
-      await supabaseClient.from("generation_session_error_logs").insert({
-        user_id: DEFAULT_USER_ID,
+      await this.supabase.from("generation_session_error_logs").insert({
+        user_id: this.userId,
         error_message: message,
         error_code: errorCode || "UNKNOWN",
         source_text_hash: sourceTextHash,
