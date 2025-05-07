@@ -1,0 +1,17 @@
+---
+import Layout from "./Layout.astro";
+import { Header } from "@/components/Header";
+
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+const { user } = Astro.locals;
+const userEmail = user?.email || undefined;
+---
+
+<Layout title={title}>
+  <Header client:load userEmail={userEmail} />
+  <slot />
+</Layout>
