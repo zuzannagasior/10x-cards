@@ -12,7 +12,9 @@ interface TextInputProps {
 export function TextInput({ value, onChange, error, disabled }: TextInputProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="text-input">Enter your text (1,000-10,000 characters)</Label>
+      <Label htmlFor="text-input" className="sr-only">
+        Enter your text (1,000-10,000 characters)
+      </Label>
       <Textarea
         id="text-input"
         value={value}

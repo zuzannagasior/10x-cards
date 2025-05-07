@@ -1,7 +1,8 @@
+import { CheckIcon, PencilIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,26 +34,42 @@ export function FlashcardListItem({ flashcard, onAccept, onReject, onEdit }: Fla
 
   return (
     <>
-      <Card className={cn(flashcard.accepted && "border-green-500 bg-green-50")}>
-        <CardHeader>
-          <div className="font-medium">Front</div>
-          <div className="mt-1">{flashcard.front}</div>
-        </CardHeader>
-        <CardContent>
-          <div className="font-medium">Back</div>
-          <div className="mt-1">{flashcard.back}</div>
-        </CardContent>
-        <CardFooter className="gap-2">
-          <Button onClick={onAccept} variant={flashcard.accepted ? "outline" : "default"} disabled={flashcard.accepted}>
-            {flashcard.accepted ? "Accepted" : "Accept"}
+      <Card className={cn("flex flex-row justify-start gap-0", flashcard.accepted && "border-green-500 bg-green-50")}>
+        <CardAction className="flex flex-col gap-2 pl-6">
+          <Button
+            onClick={onAccept}
+            variant={flashcard.accepted ? "outline" : "default"}
+            disabled={flashcard.accepted}
+            size="icon"
+            className="w-10 h-10"
+          >
+            <CheckIcon className="h-4 w-4" />
           </Button>
-          <Button onClick={() => setIsEditing(true)} variant="outline" disabled={flashcard.accepted}>
-            {flashcard.edited ? "Edit Again" : "Edit"}
+          <Button
+            onClick={() => setIsEditing(true)}
+            variant="outline"
+            disabled={flashcard.accepted}
+            size="icon"
+            className="w-10 h-10"
+          >
+            <PencilIcon className="h-4 w-4" />
           </Button>
-          <Button onClick={onReject} variant="destructive">
-            Reject
-          </Button>
-        </CardFooter>
+          {flashcard.accepted && (
+            <Button onClick={onReject} variant="destructive" size="icon" className="w-10 h-10">
+              <XIcon className="h-4 w-4" />
+            </Button>
+          )}
+        </CardAction>
+        <div className="flex-1">
+          <CardHeader>
+            <div className="font-medium">Front</div>
+            <div className="mt-1">{flashcard.front}</div>
+          </CardHeader>
+          <CardContent>
+            <div className="font-medium">Back</div>
+            <div className="mt-1">{flashcard.back}</div>
+          </CardContent>
+        </div>
       </Card>
 
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
