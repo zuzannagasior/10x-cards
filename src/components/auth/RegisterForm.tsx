@@ -51,8 +51,30 @@ export function RegisterForm() {
 
     setIsLoading(true);
     try {
-      // Registration logic will be implemented later
-      toast.success("Registration successful! Please check your email to verify your account.");
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: "include",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to register");
+      }
+
+      if (data.message) {
+        toast.success(data.message);
+      }
+
+      // If email confirmation is required, stay on the page
+      // Otherwise, redirect to login
+      if (!data.requiresEmailConfirmation) {
+        window.location.href = "/generate";
+      }
     } catch (error: unknown) {
       toast.error(getErrorMessage(error));
     } finally {
