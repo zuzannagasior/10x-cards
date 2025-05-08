@@ -10,6 +10,8 @@
 - **Backend**: Supabase (PostgreSQL, authentication)
 - **AI Integration**: Utilizes Openrouter.ai to access various AI models for flashcard generation
 - **CI/CD & Hosting**: GitHub Actions, DigitalOcean (Docker-based deployment)
+- **Unit Testing**: Vitest and React Testing Library
+- **E2E Testing**: Playwright
 
 ## Getting Started Locally
 
