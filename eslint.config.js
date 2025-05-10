@@ -1,13 +1,13 @@
-import { includeIgnoreFile } from "@eslint/compat";
 import eslint from "@eslint/js";
-import eslintPluginPrettier from "eslint-plugin-prettier/recommended";
 import eslintPluginAstro from "eslint-plugin-astro";
+import eslintPluginPrettier from "eslint-plugin-prettier/recommended";
+import eslintPluginReactHooks from "eslint-plugin-react-hooks";
+import { fileURLToPath } from "node:url";
+import { includeIgnoreFile } from "@eslint/compat";
 import jsxA11y from "eslint-plugin-jsx-a11y";
+import path from "node:path";
 import pluginReact from "eslint-plugin-react";
 import reactCompiler from "eslint-plugin-react-compiler";
-import eslintPluginReactHooks from "eslint-plugin-react-hooks";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import tseslint from "typescript-eslint";
 
 // File path setup
@@ -56,11 +56,24 @@ const reactConfig = tseslint.config({
   },
 });
 
+const prettierConfig = tseslint.config({
+  files: ["**/*.{js,jsx,ts,tsx,astro}"],
+  rules: {
+    "prettier/prettier": [
+      "error",
+      {
+        singleQuote: false,
+      },
+    ],
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier
+  eslintPluginPrettier,
+  prettierConfig
 );

@@ -1,8 +1,12 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 
 import {
-    AuthenticationError, NetworkError, RateLimitError, ResponseFormatError, ServerError
-} from './openrouter.types';
+  AuthenticationError,
+  NetworkError,
+  RateLimitError,
+  ResponseFormatError,
+  ServerError,
+} from "./openrouter.types";
 
 import type {
   ChatResponse,
