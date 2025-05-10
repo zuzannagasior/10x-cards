@@ -56,24 +56,11 @@ const reactConfig = tseslint.config({
   },
 });
 
-const prettierConfig = tseslint.config({
-  files: ["**/*.{js,jsx,ts,tsx,astro}"],
-  rules: {
-    "prettier/prettier": [
-      "error",
-      {
-        singleQuote: false,
-      },
-    ],
-  },
-});
-
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier,
-  prettierConfig
+  eslintPluginPrettier
 );
