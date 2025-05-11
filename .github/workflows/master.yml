@@ -9,6 +9,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    environment: integration
 
     steps:
       - name: Checkout repository
@@ -36,7 +37,6 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
         env:
-          ENV_NAME: integration
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
