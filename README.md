@@ -53,6 +53,7 @@
 
 This project covers the following functionalities:
 
+
 - **AI-Generated Flashcards**: Automatically generate flashcards from user-provided text, with validation for text length and options to edit, and accept or reject each flashcard.
 - **Manual Flashcard Creation**: Allow users to create and edit flashcards manually.
 - **Flashcard Management**: Enable users to view, edit, and delete flashcards.
