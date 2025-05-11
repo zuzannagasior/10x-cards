@@ -6,7 +6,6 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "preview:test": "astro preview --port 4321",
     "astro": "astro",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

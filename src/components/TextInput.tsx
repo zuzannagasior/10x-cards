@@ -17,6 +17,7 @@ export function TextInput({ value, onChange, error, disabled }: TextInputProps) 
       </Label>
       <Textarea
         id="text-input"
+        data-testid="text-generation-input"
         value={value}
         onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
         disabled={disabled}

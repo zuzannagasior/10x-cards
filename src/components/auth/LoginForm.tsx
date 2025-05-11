@@ -73,7 +73,7 @@ export function LoginForm() {
         <CardDescription>Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" data-testid="login-form">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -84,6 +84,7 @@ export function LoginForm() {
               placeholder="Enter your email"
               disabled={isLoading}
               aria-describedby={errors.email ? "email-error" : undefined}
+              data-testid="email-input"
             />
             {errors.email && (
               <p id="email-error" className="text-sm text-red-500">
@@ -102,6 +103,7 @@ export function LoginForm() {
               placeholder="Enter your password"
               disabled={isLoading}
               aria-describedby={errors.password ? "password-error" : undefined}
+              data-testid="password-input"
             />
             {errors.password && (
               <p id="password-error" className="text-sm text-red-500">
@@ -119,7 +121,7 @@ export function LoginForm() {
             </a>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading} data-testid="login-submit">
             {isLoading ? "Logging in..." : "Login"}
           </Button>
         </form>

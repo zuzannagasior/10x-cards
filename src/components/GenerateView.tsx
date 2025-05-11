@@ -105,7 +105,11 @@ export function GenerateView() {
     <div className="space-y-6">
       <TextInput value={text} onChange={handleTextChange} error={validationError} disabled={isGenerating} />
       <div className="flex justify-end">
-        <Button onClick={handleGenerate} disabled={!text || !!validationError || isGenerating}>
+        <Button
+          onClick={handleGenerate}
+          disabled={!text || !!validationError || isGenerating}
+          data-testid="generate-flashcards-button"
+        >
           {isGenerating ? "Generating..." : "Generate Flashcards"}
         </Button>
       </div>

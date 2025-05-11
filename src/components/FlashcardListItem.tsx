@@ -42,6 +42,7 @@ export function FlashcardListItem({ flashcard, onAccept, onReject, onEdit }: Fla
             disabled={flashcard.accepted}
             size="icon"
             className="w-10 h-10"
+            data-testid="accept-flashcard-button"
           >
             <CheckIcon className="h-4 w-4" />
           </Button>

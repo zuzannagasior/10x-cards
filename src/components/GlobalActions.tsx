@@ -37,7 +37,13 @@ export function GlobalActions({ flashcards, generationId, onSave, disabled }: Gl
 
   return (
     <div className="flex justify-end gap-2">
-      <Button onClick={handleSaveAccepted} disabled={disabled || !hasAccepted} variant="outline" size="lg">
+      <Button
+        onClick={handleSaveAccepted}
+        disabled={disabled || !hasAccepted}
+        variant="outline"
+        size="lg"
+        data-testid="save-accepted-flashcards-button"
+      >
         Save Accepted
       </Button>
       <Button onClick={handleSaveAll} disabled={disabled || flashcards.length === 0} size="lg">

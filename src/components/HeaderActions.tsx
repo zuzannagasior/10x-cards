@@ -103,7 +103,7 @@ export function HeaderActions({ userEmail }: HeaderActionsProps) {
         </SheetContent>
       </Sheet>
 
-      <DropdownMenu>
+      <DropdownMenu data-testid="user-menu">
         <DropdownMenuTrigger asChild className="hidden md:inline-flex">
           <Button variant="ghost" className="text-sm">
             {userEmail}
