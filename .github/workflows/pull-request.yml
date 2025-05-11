@@ -5,6 +5,9 @@ on:
     branches: ["master"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint Code
@@ -106,6 +109,8 @@ jobs:
     needs: [unit-test, e2e-test]
     runs-on: ubuntu-latest
     if: ${{ success() }}
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Create Status Comment
