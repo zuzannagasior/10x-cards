@@ -42,6 +42,8 @@ jobs:
           E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
           E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
           E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY}}
+          OPENROUTER_BASE_URL: ${{ secrets.OPENROUTER_BASE_URL}}
 
       - name: Upload test results
         if: always()
