@@ -9,7 +9,7 @@
 - **Frontend**: Astro 5, React 19, TypeScript 5, Tailwind CSS 4, Shadcn/ui
 - **Backend**: Supabase (PostgreSQL, authentication)
 - **AI Integration**: Utilizes Openrouter.ai to access various AI models for flashcard generation
-- **CI/CD & Hosting**: GitHub Actions, DigitalOcean (Docker-based deployment)
+- **CI/CD & Hosting**: GitHub Actions, Cloudflare Pages
 - **Unit Testing**: Vitest and React Testing Library
 - **E2E Testing**: Playwright
 
