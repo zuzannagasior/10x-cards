@@ -1,3 +1,4 @@
+import { OPENROUTER_BASE_URL } from "astro:env/server";
 import fetch from "node-fetch";
 
 import {
@@ -32,7 +33,7 @@ export class OpenRouterService {
       throw new AuthenticationError("API key is required");
     }
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || import.meta.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1";
+    this.baseUrl = config.baseUrl || OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1";
     this.defaultModel = config.defaultModel || "gpt-4o-mini";
     this.defaultParams = config.defaultParams || {
       temperature: 0.7,

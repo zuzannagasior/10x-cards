@@ -1,10 +1,10 @@
 import type { APIRoute } from "astro";
+import { OPENROUTER_API_KEY } from "astro:env/server";
 import { z } from "zod";
 
 import { GenerationService } from "../../lib/generation.service";
 
 export const prerender = false;
-
 const requestSchema = z.object({
   text: z
     .string()
@@ -40,7 +40,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const { text } = parseResult.data;
     const generationService = new GenerationService({
-      apiKey: import.meta.env.OPENROUTER_API_KEY,
+      apiKey: OPENROUTER_API_KEY,
       userId: locals.user.id,
       supabase: locals.supabase,
     });
