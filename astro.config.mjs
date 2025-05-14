@@ -10,6 +10,9 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   output: "server",
   adapter: cloudflare(),
+  redirects: {
+    "/": "/generate",
+  },
   integrations: [react(), sitemap()],
   server: {
     port: 3000,
