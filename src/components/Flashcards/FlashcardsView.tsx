@@ -93,7 +93,9 @@ export function FlashcardsView() {
       const response = await fetch(`/api/flashcards/${id}`, {
         method: "DELETE",
       });
-      await handleApiResponse(response);
+      if (response.status !== 204) {
+        await handleApiResponse(response);
+      }
       toast.success("Flashcard deleted successfully");
       fetchFlashcards(pagination.page, filter);
       setDeleteDialogOpen(false);
