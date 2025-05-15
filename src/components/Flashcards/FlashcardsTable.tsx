@@ -24,10 +24,10 @@ export function FlashcardsTable({ data, onEdit, onDelete, onPreview }: Flashcard
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Front</TableHead>
-            <TableHead>Back</TableHead>
-            <TableHead>Source</TableHead>
-            <TableHead className="w-[180px]">Actions</TableHead>
+            <TableHead className="w-full md:w-auto">Front</TableHead>
+            <TableHead className="hidden md:table-cell">Back</TableHead>
+            <TableHead className="whitespace-nowrap">Source</TableHead>
+            <TableHead className="w-[60px] md:w-[180px] whitespace-nowrap">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

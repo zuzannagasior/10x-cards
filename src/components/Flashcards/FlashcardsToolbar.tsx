@@ -17,7 +17,7 @@ export function FlashcardsToolbar({
   onFilterChange,
 }: FlashcardsToolbarProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div className="flex items-center gap-4">
         <Button onClick={onCreateClick} variant="default">
           New Flashcard
@@ -27,7 +27,7 @@ export function FlashcardsToolbar({
         </Button>
       </div>
       <Select value={currentFilter} onValueChange={(value: string) => onFilterChange(value as Source)}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full md:w-[180px]">
           <SelectValue placeholder="Filter by source" />
         </SelectTrigger>
         <SelectContent>
