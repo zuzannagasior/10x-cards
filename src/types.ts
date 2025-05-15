@@ -19,7 +19,7 @@ export type FlashcardDto = Pick<
   "id" | "front" | "back" | "source" | "generation_id" | "created_at" | "updated_at"
 >;
 
-export type Source = "manual" | "ai" | "ai-edited";
+export type Source = "all" | "manual" | "ai" | "ai-edited";
 
 /**
  * CreateFlashcardCommand represents the payload for creating a flashcard.
