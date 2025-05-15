@@ -1,12 +1,10 @@
-import type { Database } from "../db/database.types";
+import type { FlashcardDto, Source } from "../../types";
+
+import type { Database } from "../../db/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export class FlashcardsService {
-  private supabase: SupabaseClient<Database>;
-
-  constructor(supabase: SupabaseClient<Database>) {
-    this.supabase = supabase;
-  }
+  constructor(private readonly supabase: SupabaseClient<Database>) {}
 
   /**
    * @param flashcards - Array of flashcard objects to insert.
@@ -47,5 +45,39 @@ export class FlashcardsService {
       }
       throw new Error("Unknown error while creating flashcards");
     }
+  }
+
+  async getFlashcards(
+    userId: string,
+    page: number,
+    limit: number,
+    source?: Source
+  ): Promise<{ data: FlashcardDto[]; count: number }> {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit - 1;
+
+    let query = this.supabase
+      .from("flashcards")
+      .select("id, front, back, source, generation_id, created_at, updated_at", {
+        count: "exact",
+      })
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .range(startIndex, endIndex);
+
+    if (source) {
+      query = query.eq("source", source);
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      throw new Error(`Failed to fetch flashcards: ${error.message}`);
+    }
+
+    return {
+      data: data as FlashcardDto[],
+      count: count ?? 0,
+    };
   }
 }

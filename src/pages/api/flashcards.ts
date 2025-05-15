@@ -1,31 +1,8 @@
+import { CreateFlashcardsRequestSchema, getFlashcardsQuerySchema } from "@/lib/schemas/flashcards";
+import { FlashcardsService } from "@/lib/services/flashcards.service";
+
 import type { APIRoute } from "astro";
-import { z } from "zod";
-
-import { FlashcardsService } from "../../lib/flashcards.service";
-
-// Define schema for manual flashcards
-const CreateFlashcardCommandSchemaManual = z.object({
-  front: z.string().max(200),
-  back: z.string().max(500),
-  source: z.literal("manual"),
-});
-
-// Define schema for AI flashcards (ai or ai-edited) with required generation_id
-const CreateFlashcardCommandSchemaAI = z.object({
-  front: z.string().max(200),
-  back: z.string().max(500),
-  source: z.union([z.literal("ai"), z.literal("ai-edited")]),
-  generation_id: z.number(),
-});
-
-// Union schema for flashcard creation command
-const CreateFlashcardCommandSchema = z.union([CreateFlashcardCommandSchemaManual, CreateFlashcardCommandSchemaAI]);
-
-// Schema for the request body
-const CreateFlashcardsRequestSchema = z.object({
-  flashcards: z.array(CreateFlashcardCommandSchema),
-});
-
+import type { FlashcardsListResponseDto } from "../../types";
 export const prerender = false;
 
 export async function POST({ request, locals }: Parameters<APIRoute>[0]) {
@@ -65,3 +42,63 @@ export async function POST({ request, locals }: Parameters<APIRoute>[0]) {
     );
   }
 }
+
+export const GET: APIRoute = async ({ locals, url }) => {
+  try {
+    // Ensure user is authenticated
+    const user = locals.user;
+    if (!user?.id) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
+
+    // Validate and parse query parameters
+    const result = getFlashcardsQuerySchema.safeParse(Object.fromEntries(url.searchParams));
+
+    if (!result.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid query parameters",
+          details: result.error.issues,
+        }),
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const { page, limit, source } = result.data;
+
+    // Get flashcards from service
+    const flashcardsService = new FlashcardsService(locals.supabase);
+    const { data: flashcards, count } = await flashcardsService.getFlashcards(user.id, page, limit, source);
+
+    // Prepare response
+    const response: FlashcardsListResponseDto = {
+      data: flashcards,
+      pagination: {
+        page,
+        totalPages: Math.ceil(count / limit),
+        totalItems: count,
+      },
+    };
+
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    console.error("Error in GET /flashcards:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Internal server error",
+      }),
+      {
+        status: 500,
+      }
+    );
+  }
+};
