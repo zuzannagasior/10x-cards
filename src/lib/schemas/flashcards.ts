@@ -59,3 +59,12 @@ export const flashcardIdSchema = z
 export const flashcardParamsSchema = z.object({
   id: flashcardIdSchema,
 });
+
+// Schema for validating update flashcard request body
+export const updateFlashcardSchema = z.object({
+  front: z.string().max(200, "Front content must not exceed 200 characters"),
+  back: z.string().max(500, "Back content must not exceed 500 characters"),
+});
+
+export type UpdateFlashcardParams = z.infer<typeof flashcardParamsSchema>;
+export type UpdateFlashcardBody = z.infer<typeof updateFlashcardSchema>;

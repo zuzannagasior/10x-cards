@@ -1,7 +1,7 @@
-import type { FlashcardDto, Source } from "../../types";
-import { FlashcardForbiddenError, FlashcardNotFoundError, FlashcardOperationError } from "../errors/flashcard.errors";
+import type { FlashcardDto, Source, UpdateFlashcardCommand } from "@/types";
+import { FlashcardError, FlashcardForbiddenError, FlashcardNotFoundError } from "@/lib/errors/flashcard.errors";
 
-import type { Database } from "../../db/database.types";
+import type { Database } from "@/db/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export class FlashcardsService {
@@ -99,7 +99,7 @@ export class FlashcardsService {
       .single();
 
     if (selectError) {
-      throw new FlashcardOperationError("check existence", selectError.message);
+      throw new FlashcardError("check existence", selectError.message);
     }
 
     if (!existing) {
@@ -114,7 +114,49 @@ export class FlashcardsService {
     const { error: deleteError } = await this.supabase.from("flashcards").delete().eq("id", id).eq("user_id", userId);
 
     if (deleteError) {
-      throw new FlashcardOperationError("delete", deleteError.message);
+      throw new FlashcardError("delete", deleteError.message);
     }
+  }
+
+  async updateFlashcard(id: number, userId: string, data: UpdateFlashcardCommand): Promise<FlashcardDto> {
+    // First check if flashcard exists and belongs to user
+    const { data: existing, error: selectError } = await this.supabase
+      .from("flashcards")
+      .select("user_id,source,generation_id")
+      .eq("id", id)
+      .single();
+
+    if (selectError) {
+      if (selectError.code === "PGRST116") {
+        throw new FlashcardNotFoundError(id);
+      }
+      throw new FlashcardError("Failed to fetch flashcard", selectError.code);
+    }
+
+    if (existing.user_id !== userId) {
+      throw new FlashcardForbiddenError(id);
+    }
+
+    // Determine new source value
+    const newSource = existing.source === "ai" ? "ai-edited" : existing.source;
+
+    // Update the flashcard
+    const { data: updated, error: updateError } = await this.supabase
+      .from("flashcards")
+      .update({
+        front: data.front,
+        back: data.back,
+        source: newSource,
+      })
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (updateError) {
+      throw new FlashcardError("Failed to update flashcard", updateError.code);
+    }
+
+    return updated;
   }
 }
