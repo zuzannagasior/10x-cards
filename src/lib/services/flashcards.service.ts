@@ -1,5 +1,10 @@
 import type { FlashcardDto, Source, UpdateFlashcardCommand } from "@/types";
-import { FlashcardError, FlashcardForbiddenError, FlashcardNotFoundError } from "@/lib/errors/flashcard.errors";
+import {
+  FlashcardError,
+  FlashcardForbiddenError,
+  FlashcardNotFoundError,
+  FlashcardOperationError,
+} from "@/lib/errors/flashcard.errors";
 
 import type { Database } from "@/db/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -114,7 +119,7 @@ export class FlashcardsService {
     const { error: deleteError } = await this.supabase.from("flashcards").delete().eq("id", id).eq("user_id", userId);
 
     if (deleteError) {
-      throw new FlashcardError("delete", deleteError.message);
+      throw new FlashcardOperationError("delete", deleteError.message);
     }
   }
 
