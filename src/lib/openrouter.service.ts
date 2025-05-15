@@ -1,5 +1,4 @@
 import { OPENROUTER_BASE_URL } from "astro:env/server";
-import fetch from "node-fetch";
 
 import {
   AuthenticationError,
