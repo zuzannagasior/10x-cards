@@ -1,12 +1,11 @@
 import type { CreateGenerationSessionResponseDto, FlashcardProposalDto } from "../types";
 
 import type { Database } from "../db/database.types";
-import crypto from "crypto";
-
 import { OpenRouterService } from "./openrouter.service";
 
 import type { ResponseFormatSchema } from "./openrouter.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
+
 export class GenerationService {
   private openRouterService: OpenRouterService;
   private userId: string;
@@ -68,7 +67,7 @@ export class GenerationService {
     }
 
     try {
-      const sourceTextHash = this.calculateTextHash(text);
+      const sourceTextHash = await this.calculateTextHash(text);
       const flashcardsProposals = await this.callAIService(text);
       const session = await this.saveGenerationSession(sourceTextHash, flashcardsProposals.length);
 
@@ -82,14 +81,18 @@ export class GenerationService {
       };
     } catch (error) {
       if (error instanceof Error) {
-        await this.logError(error.message, error.name, this.calculateTextHash(text));
+        await this.logError(error.message, error.name, await this.calculateTextHash(text));
       }
       throw error;
     }
   }
 
-  private calculateTextHash(text: string): string {
-    return crypto.createHash("md5").update(text).digest("hex");
+  private async calculateTextHash(text: string): Promise<string> {
+    // Use Web Crypto API instead of Node's crypto module
+    const msgUint8 = new TextEncoder().encode(text);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 
   private async callAIService(text: string): Promise<FlashcardProposalDto[]> {
