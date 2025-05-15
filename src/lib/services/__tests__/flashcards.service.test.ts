@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  FlashcardForbiddenError,
+  FlashcardNotFoundError,
+  FlashcardOperationError,
+} from "../../errors/flashcard.errors";
 import { FlashcardsService } from "../flashcards.service";
 
 import type { Database } from "@/db/database.types";
@@ -176,6 +181,150 @@ describe("FlashcardsService", () => {
       mockSupabase.from = mockFrom;
 
       await expect(service.createFlashcards(mockFlashcards, "user123")).rejects.toThrow("Failed to create flashcards");
+    });
+  });
+
+  describe("deleteFlashcard", () => {
+    it("should successfully delete a flashcard", async () => {
+      // Arrange
+      const mockSelect = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: { user_id: "user-123" },
+            error: null,
+          }),
+        }),
+      });
+
+      const mockDelete = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({
+            data: null,
+            error: null,
+          }),
+        }),
+      });
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: mockSelect,
+        delete: mockDelete,
+      });
+
+      mockSupabase.from = mockFrom;
+
+      // Act
+      await service.deleteFlashcard(1, "user-123");
+
+      // Assert
+      expect(mockFrom).toHaveBeenCalledWith("flashcards");
+      expect(mockSelect).toHaveBeenCalledWith("user_id");
+      expect(mockDelete).toHaveBeenCalled();
+    });
+
+    it("should throw FlashcardNotFoundError when flashcard doesn't exist", async () => {
+      // Arrange
+      const mockSelect = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: null,
+            error: null,
+          }),
+        }),
+      });
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: mockSelect,
+      });
+
+      mockSupabase.from = mockFrom;
+
+      // Act & Assert
+      let thrownError: unknown;
+      try {
+        await service.deleteFlashcard(1, "user-123");
+        expect(true).toBe(false); // This will fail the test if no error is thrown
+      } catch (error) {
+        thrownError = error;
+      }
+
+      expect(thrownError).toBeInstanceOf(FlashcardNotFoundError);
+      if (thrownError instanceof FlashcardNotFoundError) {
+        expect(thrownError.code).toBe("FLASHCARD_NOT_FOUND");
+      }
+    });
+
+    it("should throw FlashcardForbiddenError when flashcard belongs to another user", async () => {
+      // Arrange
+      const mockSelect = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: { user_id: "other-user" },
+            error: null,
+          }),
+        }),
+      });
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: mockSelect,
+      });
+
+      mockSupabase.from = mockFrom;
+
+      // Act & Assert
+      let thrownError: unknown;
+      try {
+        await service.deleteFlashcard(1, "user-123");
+        expect(true).toBe(false); // This will fail the test if no error is thrown
+      } catch (error) {
+        thrownError = error;
+      }
+
+      expect(thrownError).toBeInstanceOf(FlashcardForbiddenError);
+      if (thrownError instanceof FlashcardForbiddenError) {
+        expect(thrownError.code).toBe("FLASHCARD_FORBIDDEN");
+      }
+    });
+
+    it("should throw FlashcardOperationError when database operation fails", async () => {
+      // Arrange
+      const mockSelect = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
+            data: { user_id: "user-123" },
+            error: null,
+          }),
+        }),
+      });
+
+      const mockDelete = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: "Database error" },
+          }),
+        }),
+      });
+
+      const mockFrom = vi.fn().mockReturnValue({
+        select: mockSelect,
+        delete: mockDelete,
+      });
+
+      mockSupabase.from = mockFrom;
+
+      // Act & Assert
+      let thrownError: unknown;
+      try {
+        await service.deleteFlashcard(1, "user-123");
+        expect(true).toBe(false); // This will fail the test if no error is thrown
+      } catch (error) {
+        thrownError = error;
+      }
+
+      expect(thrownError).toBeInstanceOf(FlashcardOperationError);
+      if (thrownError instanceof FlashcardOperationError) {
+        expect(thrownError.code).toBe("FLASHCARD_OPERATION_FAILED");
+      }
     });
   });
 });

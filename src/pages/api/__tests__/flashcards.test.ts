@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GET, POST } from "../flashcards";
+import { GET, POST } from "../flashcards/index";
 
 import type { APIContext } from "astro";
 import type { Database } from "@/db/database.types";

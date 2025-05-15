@@ -1,4 +1,5 @@
 import type { FlashcardDto, Source } from "../../types";
+import { FlashcardForbiddenError, FlashcardNotFoundError, FlashcardOperationError } from "../errors/flashcard.errors";
 
 import type { Database } from "../../db/database.types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -79,5 +80,41 @@ export class FlashcardsService {
       data: data as FlashcardDto[],
       count: count ?? 0,
     };
+  }
+
+  /**
+   * Deletes a flashcard if it belongs to the specified user.
+   * @param id The ID of the flashcard to delete
+   * @param userId The ID of the user attempting to delete the flashcard
+   * @throws {FlashcardNotFoundError} If the flashcard doesn't exist
+   * @throws {FlashcardForbiddenError} If the flashcard belongs to another user
+   * @throws {FlashcardOperationError} If the operation fails
+   */
+  async deleteFlashcard(id: number, userId: string): Promise<void> {
+    // First check if the flashcard exists and belongs to the user
+    const { data: existing, error: selectError } = await this.supabase
+      .from("flashcards")
+      .select("user_id")
+      .eq("id", id)
+      .single();
+
+    if (selectError) {
+      throw new FlashcardOperationError("check existence", selectError.message);
+    }
+
+    if (!existing) {
+      throw new FlashcardNotFoundError(id);
+    }
+
+    if (existing.user_id !== userId) {
+      throw new FlashcardForbiddenError(id);
+    }
+
+    // Delete the flashcard
+    const { error: deleteError } = await this.supabase.from("flashcards").delete().eq("id", id).eq("user_id", userId);
+
+    if (deleteError) {
+      throw new FlashcardOperationError("delete", deleteError.message);
+    }
   }
 }

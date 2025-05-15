@@ -2,7 +2,7 @@ import { CreateFlashcardsRequestSchema, getFlashcardsQuerySchema } from "@/lib/s
 import { FlashcardsService } from "@/lib/services/flashcards.service";
 
 import type { APIRoute } from "astro";
-import type { FlashcardsListResponseDto } from "../../types";
+import type { FlashcardsListResponseDto } from "../../../types";
 export const prerender = false;
 
 export async function POST({ request, locals }: Parameters<APIRoute>[0]) {

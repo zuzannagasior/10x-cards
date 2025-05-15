@@ -46,3 +46,16 @@ export const getFlashcardsQuerySchema = z.object({
 });
 
 export type GetFlashcardsQueryParams = z.infer<typeof getFlashcardsQuerySchema>;
+
+export const flashcardIdSchema = z
+  .number()
+  .int()
+  .positive()
+  .transform((val) => Number(val))
+  .refine((val) => !isNaN(val), {
+    message: "ID must be a valid number",
+  });
+
+export const flashcardParamsSchema = z.object({
+  id: flashcardIdSchema,
+});
